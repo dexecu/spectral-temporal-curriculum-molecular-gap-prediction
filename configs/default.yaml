@@ -1,0 +1,117 @@
+# Default configuration for Spectral-Temporal Curriculum Learning
+# Molecular HOMO-LUMO Gap Prediction on PCQM4Mv2
+
+# Global settings
+seed: 42
+device: auto
+num_gpus: 1
+strategy: auto
+
+# Model architecture configuration
+model:
+  node_features: 128
+  edge_features: 64
+  hidden_dim: 256
+  mp_layers: 4
+  num_spectral_filters: 6
+  max_chebyshev_order: 20
+  fusion_type: cross_attention  # Options: concat, attention, cross_attention
+  dropout: 0.1
+  pooling: attention  # Options: mean, max, sum, attention
+  output_dim: 1
+
+# Optimizer configuration
+optimizer:
+  name: adamw  # Options: adamw, adam, sgd
+  lr: 0.001
+  weight_decay: 0.01
+  betas: [0.9, 0.999]
+  momentum: 0.9  # For SGD only
+
+# Learning rate scheduler configuration
+scheduler:
+  name: cosine  # Options: cosine, exponential, plateau, onecycle, null
+  T_max: 100
+  eta_min: 1.0e-06
+  gamma: 0.95
+  factor: 0.5
+  patience: 10
+  total_steps: 10000
+
+# Curriculum learning configuration
+curriculum:
+  initial_fraction: 0.1
+  final_fraction: 1.0
+  warmup_epochs: 5
+  total_epochs: 100
+  growth_strategy: exponential  # Options: linear, exponential, sigmoid
+  min_growth_rate: 0.05
+
+# Loss function configuration
+loss:
+  base_loss: mae  # Options: mae, mse, huber
+  uncertainty_weight: 0.1
+  spectral_regularization: 0.01
+  curriculum_weight: 0.05
+
+# Evaluation metrics configuration
+evaluation:
+  target_mae_ev: 0.082
+  convergence_window: 10
+  tail_percentile: 95.0
+  compute_correlations: true
+  track_convergence: true
+
+# Data loading configuration
+data:
+  data_dir: data
+  batch_size: 64
+  num_workers: 4
+  pin_memory: true
+  subset: true  # Use subset for development
+  curriculum_strategy: spectral_complexity  # Options: spectral_complexity, graph_size, spectral_gap, chebyshev_order
+  max_samples: 50000  # Limit to 50K samples for 32GB RAM systems
+  node_feature_dim: 128
+  edge_feature_dim: 64
+  cache_spectral_features: true
+
+# Training configuration
+training:
+  max_epochs: 100
+  early_stopping_patience: 15
+  early_stopping_min_delta: 0.0001
+  gradient_clip_val: 1.0
+  accumulate_grad_batches: 1
+  precision: '32'  # Options: '16', '32', '64'
+  deterministic: true
+  benchmark: false
+
+# Logging and checkpointing configuration
+logging:
+  log_every_n_steps: 50
+  save_top_k: 3
+  monitor: val/mae
+  mode: min
+  save_last: true
+  dirpath: checkpoints
+  filename: spectral-temporal-{epoch:02d}-{val/mae:.4f}
+  auto_insert_metric_name: false
+
+# Experiment tracking configuration
+experiment:
+  name: spectral-temporal-curriculum
+  project: molecular-gap-prediction
+  tags:
+    - spectral
+    - curriculum
+    - molecular
+    - graph-neural-networks
+  log_model: true
+  log_artifacts: true
+  tracking_uri: mlruns
+
+# Target performance metrics (for reference)
+targets:
+  MAE_eV: 0.082
+  convergence_speedup_vs_baseline: 1.35
+  tail_percentile_95_MAE: 0.14

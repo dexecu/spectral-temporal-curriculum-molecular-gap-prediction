@@ -1,0 +1,120 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# PyCharm
+.idea/
+
+# Environment variables
+.env
+
+# Testing
+.tox/
+.nox/
+.coverage
+.pytest_cache/
+htmlcov/
+.cache
+coverage.xml
+*.cover
+.hypothesis/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Machine Learning / Data Science
+data/
+datasets/
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+checkpoints/
+logs/
+runs/
+mlruns/
+outputs/
+plots/
+wandb/
+
+# PyTorch
+*.pth
+*.pt
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Project specific
+spectral_cache/
+evaluation_results/
+training.log
+
+# Documentation
+docs/_build/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Large model files
+*.bin
+*.safetensors
+model_*.pth
+checkpoint_*.ckpt
