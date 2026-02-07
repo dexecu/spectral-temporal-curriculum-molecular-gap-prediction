@@ -726,9 +726,10 @@ class SpectralTemporalNet(nn.Module):
         )
 
         # Dual-view fusion
+        spectral_out_dim = num_spectral_filters * (hidden_dim // num_spectral_filters)
         self.fusion = DualViewFusionModule(
             mp_channels=hidden_dim,
-            spectral_channels=hidden_dim,  # num_filters * (hidden_dim // num_filters)
+            spectral_channels=spectral_out_dim,
             fusion_channels=hidden_dim,
             fusion_type=fusion_type
         )

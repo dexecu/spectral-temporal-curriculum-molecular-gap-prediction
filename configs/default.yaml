@@ -3,7 +3,7 @@
 
 # Global settings
 seed: 42
-device: auto
+device: gpu
 num_gpus: 1
 strategy: auto
 

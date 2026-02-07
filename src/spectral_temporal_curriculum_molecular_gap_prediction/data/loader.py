@@ -45,6 +45,61 @@ from .preprocessing import MolecularGraphProcessor, SpectralFeatureExtractor
 logger = logging.getLogger(__name__)
 
 
+class CSVMolecularDataset:
+    """Memory-efficient dataset that loads molecules from the raw CSV."""
+
+    def __init__(self, root: str = "data", max_samples: int = 50000):
+        self.root = Path(root)
+        csv_path = self.root / "pcqm4m-v2" / "raw" / "data.csv.gz"
+        cache_path = self.root / "pcqm4m-v2" / f"csv_graphs_{max_samples}.pkl"
+
+        if cache_path.exists():
+            logger.info(f"Loading cached graph data from {cache_path}")
+            with open(cache_path, 'rb') as f:
+                self.graphs = pickle.load(f)
+        else:
+            import gzip, csv
+            logger.info(f"Processing up to {max_samples} molecules from {csv_path}")
+            self.graphs = []
+            with gzip.open(str(csv_path), 'rt') as f:
+                reader = csv.reader(f)
+                next(reader)  # skip header
+                for i, row in enumerate(reader):
+                    if i >= max_samples:
+                        break
+                    smiles, homo_lumo = row[1], float(row[2])
+                    graph = safe_smiles2graph(smiles)
+                    edge_index = torch.from_numpy(graph['edge_index']).long()
+                    node_feat = torch.from_numpy(graph['node_feat']).float()
+                    edge_feat = torch.from_numpy(graph['edge_feat']).float()
+                    self.graphs.append(Data(
+                        x=node_feat, edge_index=edge_index, edge_attr=edge_feat,
+                        y=torch.tensor([homo_lumo]), num_nodes=graph['num_nodes']
+                    ))
+                    if (i + 1) % 10000 == 0:
+                        logger.info(f"Processed {i + 1}/{max_samples} molecules")
+            logger.info(f"Processed {len(self.graphs)} molecules, saving cache")
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(cache_path, 'wb') as f:
+                pickle.dump(self.graphs, f)
+
+    def __len__(self) -> int:
+        return len(self.graphs)
+
+    def __getitem__(self, idx: int) -> Data:
+        return self.graphs[idx]
+
+    def get_idx_split(self) -> Dict[str, np.ndarray]:
+        total = len(self.graphs)
+        train_size = int(0.8 * total)
+        val_size = int(0.1 * total)
+        return {
+            'train': np.arange(train_size),
+            'valid': np.arange(train_size, train_size + val_size),
+            'test': np.arange(train_size + val_size, total)
+        }
+
+
 class MockPCQM4Mv2Dataset:
     """Mock dataset for development when OGB is not available."""
 
@@ -130,14 +185,14 @@ class SpectralComplexityDataset(Dataset):
     def __len__(self) -> int:
         return len(self.base_dataset)
 
-    def __getitem__(self, idx: int) -> Tuple[Data, Dict[str, float]]:
+    def __getitem__(self, idx: int) -> Data:
         """Get processed graph data with spectral features.
 
         Args:
             idx: Sample index
 
         Returns:
-            Tuple of (processed_graph_data, spectral_features)
+            Processed graph data with spectral features as attributes
         """
         # Get base data
         data = self.base_dataset[idx]
@@ -160,7 +215,7 @@ class SpectralComplexityDataset(Dataset):
             if self.cache_spectral_features:
                 self.spectral_features_cache[idx] = spectral_features
 
-        return processed_data, spectral_features
+        return processed_data
 
     def compute_all_spectral_features(self, max_samples: Optional[int] = None) -> None:
         """Pre-compute spectral features for all samples.
@@ -355,18 +410,31 @@ class PCQM4Mv2DataModule(pl.LightningDataModule):
 
     def prepare_data(self) -> None:
         """Download and prepare the dataset."""
-        # Create data directory
         self.data_dir.mkdir(exist_ok=True, parents=True)
 
-        # Initialize base dataset with safe SMILES parser
-        if PCQM4Mv2Dataset is not None:
+    def _load_base_dataset(self):
+        """Load the base dataset, trying CSV first (memory efficient), then OGB, then mock."""
+        csv_path = self.data_dir / "pcqm4m-v2" / "raw" / "data.csv.gz"
+        processed_path = self.data_dir / "pcqm4m-v2" / "processed" / "data_processed"
+
+        # Check if OGB processed data exists and is valid (non-empty)
+        if PCQM4Mv2Dataset is not None and processed_path.exists() and processed_path.stat().st_size > 0:
             try:
-                _ = PCQM4Mv2Dataset(root=str(self.data_dir), smiles2graph=safe_smiles2graph)
-                logger.info("PCQM4Mv2 dataset initialized")
+                dataset = PCQM4Mv2Dataset(root=str(self.data_dir), smiles2graph=safe_smiles2graph)
+                logger.info("PCQM4Mv2 dataset loaded via OGB")
+                return dataset
             except Exception as e:
-                logger.warning(f"Failed to initialize PCQM4Mv2: {e}")
-        else:
-            logger.info("Using mock dataset for development")
+                logger.warning(f"OGB loading failed: {e}")
+
+        # Use CSV-based loading (memory efficient, processes only needed samples)
+        if csv_path.exists() and safe_smiles2graph is not None:
+            max_samples = self.max_samples or 50000
+            logger.info(f"Loading {max_samples} molecules from raw CSV")
+            return CSVMolecularDataset(root=str(self.data_dir), max_samples=max_samples)
+
+        # Fall back to mock dataset
+        logger.warning("Using mock dataset (no real data available)")
+        return MockPCQM4Mv2Dataset(root=str(self.data_dir), subset=self.subset)
 
     def setup(self, stage: Optional[str] = None) -> None:
         """Setup datasets for training, validation, and testing.
@@ -374,15 +442,7 @@ class PCQM4Mv2DataModule(pl.LightningDataModule):
         Args:
             stage: Current stage ('fit', 'validate', 'test', or 'predict')
         """
-        # Initialize base dataset with safe SMILES parser
-        if PCQM4Mv2Dataset is not None:
-            try:
-                base_dataset = PCQM4Mv2Dataset(root=str(self.data_dir), smiles2graph=safe_smiles2graph)
-            except Exception:
-                logger.warning("Using mock dataset due to OGB initialization failure")
-                base_dataset = MockPCQM4Mv2Dataset(root=str(self.data_dir), subset=self.subset)
-        else:
-            base_dataset = MockPCQM4Mv2Dataset(root=str(self.data_dir), subset=self.subset)
+        base_dataset = self._load_base_dataset()
 
         # Get data splits
         split_idx = base_dataset.get_idx_split()

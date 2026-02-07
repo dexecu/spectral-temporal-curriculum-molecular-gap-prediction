@@ -117,7 +117,7 @@ def create_trainer(config: Config) -> pl.Trainer:
     mlf_logger = MLFlowLogger(
         experiment_name=config.experiment.name,
         tracking_uri=config.experiment.tracking_uri,
-        tags=dict(zip(range(len(config.experiment.tags)), config.experiment.tags))
+        tags={str(k): v for k, v in enumerate(config.experiment.tags)}
     )
 
     # Create trainer
@@ -262,18 +262,25 @@ def train_model(config: Config, resume_from_checkpoint: Optional[str] = None) ->
             mlflow.log_metric(f"convergence_{key}", value)
 
         # Save convergence plots
-        plots_dir = Path("plots")
-        plots_dir.mkdir(exist_ok=True)
-        convergence_plot_path = plots_dir / "training_curves.png"
-        convergence_analyzer.plot_training_curves(save_path=str(convergence_plot_path))
-        mlflow.log_artifact(str(convergence_plot_path))
+        try:
+            plots_dir = Path("plots")
+            plots_dir.mkdir(exist_ok=True)
+            convergence_plot_path = plots_dir / "training_curves.png"
+            convergence_analyzer.plot_training_curves(save_path=str(convergence_plot_path))
+            if convergence_plot_path.exists():
+                mlflow.log_artifact(str(convergence_plot_path))
+        except Exception as e:
+            logger.warning(f"Failed to save convergence plots: {e}")
 
         # Log best checkpoint as model
         if config.experiment.log_model:
-            best_model_path = trainer.checkpoint_callback.best_model_path
-            if best_model_path:
-                mlflow.log_artifact(best_model_path)
-                logger.info(f"Best model saved: {best_model_path}")
+            try:
+                best_model_path = trainer.checkpoint_callback.best_model_path
+                if best_model_path and Path(best_model_path).exists():
+                    mlflow.log_artifact(best_model_path)
+                    logger.info(f"Best model saved: {best_model_path}")
+            except Exception as e:
+                logger.warning(f"Failed to log best model: {e}")
 
     # Prepare results
     results = {
