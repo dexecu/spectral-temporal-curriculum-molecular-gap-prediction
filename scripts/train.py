@@ -7,6 +7,7 @@ MLflow tracking, and comprehensive evaluation.
 
 import argparse
 import logging
+import math
 import os
 import sys
 from pathlib import Path
@@ -246,15 +247,48 @@ def train_model(config: Config, resume_from_checkpoint: Optional[str] = None) ->
         # Use standard trainer.fit() - curriculum is handled in the model
         trainer.fit(model, datamodule, ckpt_path=resume_from_checkpoint)
 
-        # Get final metrics
+        # Get final metrics.
+        # After early stopping (or normal completion), the per-epoch
+        # callbacks have already called metrics.reset(), so calling
+        # model.metrics.compute() here would return NaN.  Instead, we
+        # re-run a full validation pass on the best checkpoint so the
+        # reported numbers correspond to the saved model.
+        best_ckpt = trainer.checkpoint_callback.best_model_path
+        if best_ckpt and Path(best_ckpt).exists():
+            logger.info(f"Loading best checkpoint for final metrics: {best_ckpt}")
+            best_model = CurriculumTrainer.load_from_checkpoint(best_ckpt)
+            val_results = trainer.validate(best_model, datamodule, verbose=False)
+            # trainer.validate returns a list of dicts (one per dataloader)
+            final_val_metrics = val_results[0] if val_results else {}
+            # Strip 'val/' prefix that Lightning adds so downstream keys
+            # stay consistent (e.g. 'mae' instead of 'val/mae').
+            final_val_metrics = {
+                k.replace('val/', ''): v for k, v in final_val_metrics.items()
+            }
+        else:
+            logger.warning(
+                "No best checkpoint found; falling back to current model "
+                "metrics (may be NaN if metrics were reset after last epoch)."
+            )
+            final_val_metrics = model.metrics.compute(split='val')
+
+        # Train metrics are less critical; compute them from current
+        # state and tolerate NaN (they are reset every epoch anyway).
         final_train_metrics = model.metrics.compute(split='train')
-        final_val_metrics = model.metrics.compute(split='val')
+        # Replace any NaN values in train metrics with 0.0 so they
+        # don't break downstream logging.
+        final_train_metrics = {
+            k: (v if not (isinstance(v, float) and math.isnan(v)) else 0.0)
+            for k, v in final_train_metrics.items()
+        }
 
         # Log final metrics
         for key, value in final_train_metrics.items():
-            mlflow.log_metric(f"final_train_{key}", value)
+            if isinstance(value, (int, float)):
+                mlflow.log_metric(f"final_train_{key}", value)
         for key, value in final_val_metrics.items():
-            mlflow.log_metric(f"final_val_{key}", value)
+            if isinstance(value, (int, float)):
+                mlflow.log_metric(f"final_val_{key}", value)
 
         # Compute convergence metrics
         convergence_metrics = convergence_analyzer.compute_convergence_metrics()
@@ -359,14 +393,18 @@ def main():
         print("TRAINING COMPLETED")
         print("="*50)
 
-        print(f"Final Validation MAE: {results['final_val_metrics'].get('mae', 'N/A'):.4f} eV")
+        final_mae = results['final_val_metrics'].get('mae', None)
+        if final_mae is not None and not (isinstance(final_mae, float) and math.isnan(final_mae)):
+            print(f"Final Validation MAE: {final_mae:.4f} eV")
+        else:
+            print("Final Validation MAE: N/A (metrics unavailable)")
 
         target_mae = config.evaluation.target_mae_ev
-        final_mae = results['final_val_metrics'].get('mae', float('inf'))
-        if final_mae <= target_mae:
-            print(f"✓ Target MAE achieved! ({final_mae:.4f} ≤ {target_mae:.4f} eV)")
-        else:
-            print(f"✗ Target MAE not achieved ({final_mae:.4f} > {target_mae:.4f} eV)")
+        if final_mae is not None and not (isinstance(final_mae, float) and math.isnan(final_mae)):
+            if final_mae <= target_mae:
+                print(f"Target MAE achieved! ({final_mae:.4f} <= {target_mae:.4f} eV)")
+            else:
+                print(f"Target MAE not yet achieved ({final_mae:.4f} > {target_mae:.4f} eV)")
 
         if 'convergence_speedup_vs_baseline' in results['convergence_metrics']:
             speedup = results['convergence_metrics']['convergence_speedup_vs_baseline']
