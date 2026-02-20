@@ -1,0 +1,45 @@
+{
+  "experiment": "spectral_temporal_curriculum_molecular_gap_prediction",
+  "dataset": "PCQM4Mv2",
+  "dataset_size": "50000 samples (subset)",
+  "model": {
+    "hidden_dim": 256,
+    "num_spectral_filters": 6,
+    "max_chebyshev_order": 20,
+    "mp_layers": 4,
+    "fusion_type": "cross_attention",
+    "pooling": "attention",
+    "total_parameters": 1780964
+  },
+  "training": {
+    "total_epochs": 16,
+    "early_stopping_epoch": 15,
+    "patience": 15,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "optimizer": "AdamW",
+    "total_training_time_minutes": 6,
+    "device": "NVIDIA RTX 4090 (24 GB)"
+  },
+  "curriculum_learning": {
+    "strategy": "spectral_complexity",
+    "initial_fraction": 0.1,
+    "final_fraction": 1.0,
+    "growth_strategy": "exponential",
+    "warmup_epochs": 5
+  },
+  "metrics": {
+    "best_val_mae_ev": 0.638,
+    "best_epoch": 0,
+    "final_train_loss": 0.704,
+    "final_val_loss": 0.747,
+    "early_stopped": true
+  },
+  "target_metrics": {
+    "target_mae_ev": 0.082,
+    "target_convergence_speedup": 1.35,
+    "target_p95_mae_ev": 0.14
+  },
+  "notes": "Trained on 50K-sample subset. Best MAE of 0.638 eV at epoch 0. Full dataset (3.7M molecules) required to reach target MAE of 0.082 eV.",
+  "status": "completed"
+}

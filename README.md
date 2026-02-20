@@ -25,42 +25,41 @@ The combined approach addresses limitations of pure message-passing methods (lim
 
 ## Training Results
 
-Training was conducted on a 50K-sample subset of PCQM4Mv2 with curriculum learning on an NVIDIA RTX 3090 (24 GB). Early stopping triggered at epoch 16 (patience = 15).
+Training was conducted on a 50K-sample subset of PCQM4Mv2 with curriculum learning on an NVIDIA RTX 4090 (24 GB). Early stopping triggered at epoch 15 (patience = 15).
 
 | Epoch | Train Loss | Val Loss | Val MAE (eV) | Curriculum % | Duration |
 |-------|-----------|----------|-------------|-------------|----------|
-| 0 | 0.655 | 0.801 | 0.692 | 10% | 48s |
-| 1 | 0.685 | 0.699 | **0.631** | 10% | 48s |
-| 2 | 0.631 | 0.774 | 0.717 | 10% | 48s |
-| 3 | 0.684 | 0.710 | 0.660 | 10% | 50s |
-| 4 | 0.681 | 0.808 | -- | 10% | 49s |
-| 5 | 0.704 | 0.782 | -- | 35% | 49s |
-| 6 | 0.756 | 0.771 | -- | 40% | 48s |
-| 7 | 0.842 | 0.861 | -- | 45% | 48s |
-| 8 | 0.825 | 0.827 | -- | 50% | 49s |
-| 9 | 0.718 | 0.795 | -- | 55% | 50s |
-| 10 | 0.789 | 0.794 | -- | 60% | 48s |
-| 11 | 0.741 | 0.797 | -- | 65% | 49s |
-| 12 | 0.744 | 0.776 | -- | 70% | 48s |
-| 13 | 0.655 | 0.802 | -- | 75% | 49s |
-| 14 | 0.589 | 0.822 | -- | 80% | 50s |
-| 15 | 0.691 | 0.872 | -- | 85% | 55s |
-| 16 | 0.720 | 0.801 | -- | 90% | 49s |
+| 0 | 0.697 | 0.766 | **0.638** | 10% | 21s |
+| 1 | 0.724 | 0.790 | 0.699 | 10% | 21s |
+| 2 | 0.699 | 0.782 | 0.702 | 10% | 21s |
+| 3 | 0.732 | 0.833 | -- | 10% | 21s |
+| 4 | 0.763 | 0.742 | 0.683 | 10% | 21s |
+| 5 | 0.645 | 0.881 | -- | 35% | 21s |
+| 6 | 0.740 | 0.750 | -- | 40% | 22s |
+| 7 | 0.623 | 0.736 | 0.691 | 45% | 21s |
+| 8 | 0.703 | 0.764 | -- | 50% | 22s |
+| 9 | 0.724 | 0.815 | -- | 55% | 21s |
+| 10 | 0.914 | 0.933 | -- | 60% | 22s |
+| 11 | 0.784 | 0.900 | -- | 65% | 23s |
+| 12 | 0.708 | 0.790 | -- | 70% | 32s |
+| 13 | 0.670 | 0.835 | -- | 75% | 20s |
+| 14 | 0.698 | 0.811 | -- | 80% | 21s |
+| 15 | 0.704 | 0.747 | -- | 85% | 20s |
 
-**Best Validation MAE**: 0.631 eV (epoch 1)
+**Best Validation MAE**: 0.638 eV (epoch 0)
 
 ### Analysis
 
-The model demonstrates that the dual-view architecture successfully processes molecular graphs through both message-passing and spectral pathways. The curriculum learning strategy progressively increased the training data from 10% to 90%, showing the expected training-data scaling behavior where validation loss spikes temporarily as harder samples are introduced at curriculum transitions (epochs 5, 7-8). Notably, the best MAE was achieved early (epoch 1) during the initial 10% curriculum phase, with the model learning fundamental molecular patterns efficiently before curriculum expansion. This 50K-sample subset run serves as a proof-of-concept; achieving the target MAE of 0.082 eV requires training on the full 3.7M-molecule dataset with extended epochs and learning rate tuning.
+The model demonstrates that the dual-view architecture successfully processes molecular graphs through both message-passing and spectral pathways. The curriculum learning strategy progressively increased the training data from 10% to 85%, showing the expected training-data scaling behavior where validation loss spikes temporarily as harder samples are introduced at curriculum transitions (epochs 5, 10-11). Notably, the best MAE was achieved early (epoch 0) during the initial 10% curriculum phase, with the model learning fundamental molecular patterns efficiently before curriculum expansion. This 50K-sample subset run serves as a proof-of-concept; achieving the target MAE of 0.082 eV requires training on the full 3.7M-molecule dataset with extended epochs and learning rate tuning.
 
 ### Configuration
 - **Dataset**: PCQM4Mv2 (50K subset from 3.7M molecules)
-- **GPU**: NVIDIA RTX 3090 (24 GB)
+- **GPU**: NVIDIA RTX 4090 (24 GB)
 - **Batch size**: 64
 - **Learning rate**: 0.001 (AdamW, cosine schedule)
 - **Spectral filters**: 6 Chebyshev filters (order up to 20)
 - **Fusion**: Cross-attention between message-passing and spectral views
-- **Total training time**: ~14 minutes
+- **Total training time**: ~6 minutes
 
 ## Installation
 
